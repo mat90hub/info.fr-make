@@ -1,0 +1,1274 @@
+@c -*- coding: utf-8-unix; mode: texinfo; mode: auto-fill; ispell-local-dictionary: "francais" -*-
+
+@c ===========================================================================
+@c
+@c FRENCH VERSION of make-stds.texi
+@c
+@c ===========================================================================
+@comment This file is included by both standards.texi and make.texinfo.
+@comment It was broken out of standards.texi on 1/6/93 by roland.
+
+@node Les conventions des Makefiles
+@chapter Les conventions des Makefiles
+@cindex makefiles, conventions
+@cindex les conventions des makefiles
+@cindex les standards des Makefiles
+
+@c Copyright 1992, 1993, 1994, 1995, 1996, 1997, 1998, 2000, 2001,
+@c 2004, 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015
+@c Free Software Foundation, Inc.
+@c
+@c Permission is granted to copy, distribute and/or modify this document
+@c under the terms of the GNU Free Documentation License, Version 1.3
+@c or any later version published by the Free Software Foundation;
+@c with no Invariant Sections, with no
+@c Front-Cover Texts, and with no Back-Cover Texts.
+@c A copy of the license is included in the section entitled ``GNU
+@c Free Documentation License''.
+
+@ifinfo
+Ce nœud
+@end ifinfo
+@iftex
+@ifset CODESTD
+Cette section
+@end ifset
+@ifclear CODESTD
+Ce chapitre
+@end ifclear
+@end iftex
+décrit les conventions utilisées pour écrire les Makefile des programmes
+GNU.  Utiliser Automake vous aidera à écrire des fichiers Makefile qui suivent ces
+conventions.  Pour plus d'information sur les Makefiles portables, voir
+@sc{posix} et @ref{Portable Make, Portable Make Programming,,autoconf,Autoconf}.
+
+
+@node Introductions aux Makefiles
+@section Conventions générales pour les Makefiles
+
+Tous les Makefiles devraient avoir cette ligne_:
+
+@example
+SHELL = /bin/sh
+@end example
+
+@noindent
+pour éviter des difficultés sur les systèmes dans lesquels la variable
+@code{SHELL} pourrait être héritée de l'environnement. (Ce n'est jamais un
+problème pour GNU @code{make}.)
+
+Les différents programmes @code{make} ont des listes de suffixes
+incompatibles ou de règles implicites, qui peuvent créer des confusions
+et des anomalies.  Donc c'est une bonne idée de définir explicitement la
+liste des suffixes en utilisant seulement les suffixes dont on a besoin
+pour un fichier @file{Makefile} particulier comme ceci_:
+
+@example
+.SUFFIXES:
+.SUFFIXES: .c .o
+@end example
+
+@noindent
+La première ligne efface la liste de suffixes, la secondes introduit
+les suffixes, qui peuvent faire l'objet de règles implicites dans
+ce fichier @file{Makefile}
+
+Ne supposez pas que @file{.} soit le répertoire en cours d'exécution des
+commandes.  Quand vous devez lancer des programmes qui font partie de
+votre paquet pendant le @code{make}, vérifiez que vous utilisez @file{./}
+que dans le cas où le programme doive être compilé dans le répertoire
+@file{$(srcdir)/} ou si le fichier correspond à une partie non modifiée
+du code source. Sans l'un de ces préfixes, le répertoire courant est
+utilisé.
+
+La distinction entre @file{./} (le @dfn{répertoire de compilation}) et
+@file{$(srcdir)/} (le @dfn{répertoire des fichiers sources}) est
+importante car les utilisateurs peuvent effectuer les compilations dans
+un répertoire séparé en utilisant l'option @samp{--srcdir} pour
+@file{configure}. Une règle de la forme_:
+
+@smallexample
+foo.1 : foo.man sedscript
+        sed -f sedscript foo.man > foo.1
+@end smallexample
+
+@noindent
+échouera si le répertoire de compilation n'est pas le répertoire des
+fichiers sources, car les fichiers @file{foo.man} et @file{sedscript}
+sont dans le répertoire des fichiers sources.
+
+Quand on utilise GNU @code{make}, compter sur @samp{VPATH} pour trouver
+les fichiers sources fonctionne quand il n'y a qu'un seul fichier de
+dépendance, car la variable automatique @samp{$<} de @code{make} va
+représenter le fichier source, quelque soit sa position. (Beaucoup de
+versions de @code{make} définissent @samp{$<} seulement dans les règles
+implicites). Un fichier @file{Makefile} cible comme
+
+@smallexample
+foo.o : bar.c
+        $(CC) -I. -I$(srcdir) $(CFLAGS) -c bar.c -o foo.o
+@end smallexample
+
+@noindent
+devrait être écrit plutôt comme
+
+@smallexample
+foo.o : bar.c
+        $(CC) -I. -I$(srcdir) $(CFLAGS) -c $< -o $@@
+@end smallexample
+
+@noindent
+pour permettre à @samp{VPATH} de fonctionner correctement. Quand une
+cible a des dépendances multiples, la façon la plus simple pour faire
+fonctionner la règle correctement est d'utiliser un @samp{$(srcdir)}
+explicite. Par exemple, la cible pour @file{foo.1} ci-dessus devrait
+plutôt être écrite_:
+
+@smallexample
+foo.1 : foo.man sedscript
+        sed -f $(srcdir)/sedscript $(srcdir)/foo.man > $@@
+@end smallexample
+
+Les distributions GNU contiennent normalement certains fichiers, qui ne
+sont pas des fichiers source, par exemple les fichiers @file{Info} et
+les sorties des programmes @code{Autoconf}, @code{Automake},
+@code{Bison} et @code{Flex}. Comme ces fichiers sont normalement dans le
+répertoire des fichiers sources, ils devraient toujours être dans le
+répertoire des fichiers sources, mais pas dans le répertoire de
+compilation. Donc les règles du fichier @file{Makefile} qui les mettront
+à jour doivent ensuite les placer dans le répertoire des fichiers
+sources.
+
+Cependant, si un fichier n'existe pas dans une distribution, le fichier
+@file{Makefile} ne devrait pas le mettre dans le repertoire des fichiers
+sources, car la compilation d'un programme dans des circonstances
+ordinaires ne devrait pas modifier le répertoires des fichiers sources
+d'aucune manières.
+
+Essaie de compilation et d'installation des cibles (et leurs cibles
+intermédiaires), fonctionne au moins avec des commandes @code{mak}
+parallèle.
+
+@node Utilitaires dans les Makefiles
+@section Utilitaires dans les Makefiles
+
+Écrit les commandes du @code{Makefile} (et d'autres scripts comme
+@code{configure}) pouvant être lancés avec la commande @code{sh} (avec
+la commande traditionnelle du Bourne Shell ou du Shell @sc{posix}), pas
+le Shell @code{csh}. N'utilisez pas les fonctionalités particulières des
+Shell @code{ksh} ou @code{bash} ou celles de @sc{posix} qui ne sont pas
+supportée largement dans le Bourne Shell traditionnel @code{sh}.
+
+Les script @code{configure} les règles du @code{Makefile} pour compiler et
+installer ne devraient pas utiliser d'autres utilitaires que ceci_:
+
+@c dd find
+@c gunzip gzip md5sum
+@c mkfifo mknod tee uname
+
+@example
+awk cat cmp cp diff echo egrep expr false grep install-info ln ls
+mkdir mv printf pwd rm rmdir sed sleep sort tar test touch tr true
+@end example
+
+Les programmes de compression comme @code{gzip} peuvent être utilisés
+dans les règles @code{dist}.
+
+D'une manière générale, contentez vous d'utiliser les options et les
+fonctionalités de ses programmes qui sont supportées largement (le plus
+souvent elles sont spécifiées @sc{posix}). Ce peut être un inconvénient,
+mais c'est plus sûr car certains systèmes ne les supportent pas et pour
+d'autres, ce n'est pas sécurisé pour des exécutions parallèles. Pour
+avoir une liste des incompatibilités connues,
+voir @ref{Portable Shell,Portable Shell Programming,,autocong, Autoconf}.
+
+
+Mieux vaut éviter d'utiliser des liens symboliques dans les
+@code{Makefiles}, car certains systèmes de fichier ne les supportent
+pas.
+
+Les règles de compilation et d'installation du @file{Makefile} peuvent
+aussi utiliser des compilateurs et des programmes analogues, mais elles
+devraient le faire à travers les variables @code{make} de telles sortes
+qu'on puisse leur substituer des alternatives. Voici quelques uns des
+programmes auxquels nous faisons allusion_:
+
+@example
+ar bison cc flex install ld ldconfig lex
+make makeinfo ranlib texi2dvi yacc
+@end example
+
+Utilisez les variables @code{make} suivantes pour exécuter ces programmes :
+
+@example
+$(AR) $(BISON) $(CC) $(FLEX) $(INSTALL) $(LD) $(LDCONFIG) $(LEX)
+$(MAKE) $(MAKEINFO) $(RANLIB) $(TEXI2DVI) $(YACC)
+@end example
+
+Quand vous utilisez @code{ranlib} ou @code{ldconfig}, vous devez vous assurer
+que rien de fâcheux n'arrive si le système n'a pas ces programmes en
+question. Arrangez vous pour ignorer les erreurs de ces commandes et
+imprimez un message avant la commande pour avertir l'utilisateur qu'un
+défaut sur ces commandes ne signifie pas un problème. (La macro Autoconf
+@samp{AC_PROG_RANLIB} peut aider pour cela.)
+
+Si vous utilisez des liens symboliques, vous devriez implémenter une
+solution de replis pour les systèmes qui n'en ont pas.
+
+Les utilitaires additionnels qui peuvent être utilisés dans des variables
+@code{make} sont_:
+
+@example
+chgrp chmod chown mknod
+@end example
+
+On peut utiliser d'autres utilitaires dans des portions du
+@code{Makefile} (ou des scripts) si on cible seulement les systèmes où
+l'on sait que ces utilitaires existent.
+
+
+@node Les variables des commandes
+@section Variables pour spécifier des commandes
+
+Les fichiers @code{Makefile} devraient fournir des variables pour remplacer
+certaines commandes, options, etc.
+
+En particulier, vous devriez exécuter la plupart des utilitaires au
+travers de variables. Ainsi, si vous utilisez @code{Bison}, ayez une variable
+@code{BISON} dont la valeur par défaut est @samp{BISON=bison} et
+référez-vous à cette variable @code{$(BISON)} chaque fois que vous avez
+besoin d'utiliser @code{Bison}.
+
+Les utilitaires de gestion de fichiers comme @code{ln}, @code{rm},
+@code{mv} etc. n'ont pas besoin d'être référencés de cette façon par des
+variables, car les utilisateurs n'auront pas besoin de les remplacer
+par d'autres programmes.
+
+Chaque variable de nom de programme devrait venir avec une variable
+options utilisée pour spécifer les options au programme. Ajouter
+@samp{FLAGS} à la variable du nom du programme pour obtenir les noms de
+la variable options --- par exemple, @code{BISONFLAGS}. (les noms
+@code{CFLAGS} pour le compilateur C, @code{YFLAGS} pour yacc et
+@code{LFLAGS} pour lex sont des exception à cette règle, mais nous les
+gardons car elles sont standards.) Utilisez @code{CPPFLAGS} pour toute
+commande de compilation qui utilise un préprocesseur et utilisez
+@code{LDFLAGS} pour toute commande de compilation qui effectue l'édition
+de liens comme pour chaque utilisation directe de @code{ld}.
+
+S'il y a des options du compilateur C qui @emph{doivent} être utilisées
+pour une compilation propre de certains fichiers, ne les incluez pas
+dans @code{CFLAGS}. Les utilisateurs s'attendent à pouvoir spécifier
+@code{CFLAGS} librement par eux-mêmes. À la place, arrangez vous pour
+passer les options nécessaires du compilateur C indépendamment de
+@code{CFLAGS}, en les écrivant explicitement dans les commandes de
+compilation ou en les définissant dans une règle implicite comme ceci_:
+
+
+@smallexample
+CFLAGS = -g
+ALL_CFLAGS = -I. $(CFLAGS)
+.c.o:
+        $(CC) -c $(CPPFLAGS) $(ALL_CFLAGS) $
+@end smallexample
+
+Incluez l'option @samp{-g} dans @code{CFLAGS}, parcequ'elle n'est pas
+@emph{obligatoire} pour la compilation propre. Vous pouvez considérer
+qu'il s'agit d'un défaut, et seulement d'une recommendation. Si le
+paquet est réglé pour être compilé par GCC par défaut, alors vous
+pourriez inclure @samp{-O} aussi comme valeur par défaut de
+@code{CFLAGS}.
+
+Mettez @code{CFLAGS} en dernier dans les commandes de compilation, après
+les autres variables contenant des options du compilateur, de telle
+façon que l'utilisateur puisse utiliser @code{CFLAGS} pour remplacer les
+autres.
+
+@code{CFLAGS} devrait être utilisé dans chaque invocation du compilateur
+C, à la fois celles qui effectuent la compilation et celles qui font
+l'édition de liens.
+
+Chaque Makefile devrait définir la variable @code{INSTALL}, qui est la
+commande de base pour installer un fichier dans le système.
+
+Chaque Makefile devrait définir les variables @code{INSTALL_PROGRAM} et
+@code{INSTALL_DATA}.  (La contenue par défaut de @code{INSTALL_PROGRAM}
+devrait être @code{$(INSTALL)}_; Le contenu par défaut de
+@code{INSTALL_DATA} devrait être @code{$@{INSTALL@} -m 644}.)  Ensuite,
+il devrait utiliser ces variables comme des commandes pour
+l'installation effective, les exécutables et les non-exécutables
+respectivement.  L'utilisation minimaliste de ces variables est la
+suivante_:
+
+@example
+$(INSTALL_PROGRAM) foo $(bindir)/foo
+$(INSTALL_DATA) libfoo.a $(libdir)/libfoo.a
+@end example
+
+Cependant il est préférable d'utiliser un préfixe @code{DESTDIR} pour les
+fichiers ciblés, comme expliqué dans la section suivante.
+
+Il est acceptable, mais non obligatoire, d'installer plusieurs fichiers
+en une commande, avec l'argument final étant un répertoire comme dans_:
+
+@example
+$(INSTALL_PROGRAM) foo bar baz $(bindir)
+@end example
+
+
+@node DESTDIR
+@section @code{DESTDIR}: Support pour une installation organisée
+
+@vindex DESTDIR
+@cindex installaton organisée
+@cindex installation, organisée
+
+@c staged = organisée
+
+@code{DESTDIR} est une variable mis au début de chaque fichier cible
+installé, comme ceci_:
+
+@example
+$(INSTALL_PROGRAM) foo $(DESTDIR)$(bindir)/foo
+$(INSTALL_DATA) libfoo.a $(DESTDIR)$(libdir)/libfoo.a
+@end example
+
+La variable @code{DESTDIR} est spécifiée par l'utilisateur sur la ligne
+de commande de @code{make} comme un nom de fichier absolu. Par exemple_:
+
+@example
+make DESTDIR=/tmp/stage install
+@end example
+
+@noindent
+@code{DESTDIR} devrait être utilisé seulement si les cibles @code{install*} et
+@code{uninstall*}, car ce sont les seules cibles qui soient utiles.
+
+Si vos étapes d'installation devraient normalement installer
+@file{/usr/local/bin/foo} et @file{/usr/@/local/@/lib/@/libfoo.a}, alors
+une commande d'installation comme celle invoquée dan l'exemple ci-dessus
+installerait @file{/tmp/stage/usr/local/bin/foo} et
+@file{/tmp/stage/usr/local/lib/libfoo.a} à la place.
+
+Mettre la variable @code{DESTDIR} au début de chaque cible de cette
+façon fait que @dfn{staged installs}, que les fichiers ne sont pas
+installés à leur places attendues, mais copiés dans un répertoire
+temporaire (@code{DESTDIR}). Cependant les fichiers installés
+maintiennent leur structure relative de répertoires et les fichiers
+incorporés ne sont pas modifiés.
+
+Vous ne devriez pas du tout régler les valeurs de @code{DESTDIR} dans
+votre @file{Makefile}_; alors les fichiers sont installés à leur places
+attendues par défaut. Ainsi, la spécification de @code{DESTDIR} ne
+devrait pas changer l'exécution du programme d'aucune façon, de telle
+façon que sa valeur ne devrait être incluse dans aucun contenu de
+fichier.
+
+Le support @code{DESTDIR} est utilisé couramment pour la création de
+paquet. C'est aussi utile pour les utilisateurs qui veulent comprendre
+ce qu'un paquet donné va installer et où et permet à des utilisateurs
+qui n'ont pas normalement les droits d'installer dans les zones
+protégées, de compiler et d'installer avant de pouvoir obtenir ces
+permissions. Finallement, ce peut être utile pour les outils comme
+@code{stow}, où le code est installé à un endroit, mais est fait pour
+sembler être installé ailleurs en utilisant les liens symboliques ou des
+opérations de montage spéciales. Donc, nous recommendons fortement
+l'utilisation de @code{DESTDIR} pour les paquets GNU, bien que ce ne
+soit pas une nécessité absolue.
+
+
+@node Les variables des répertoires
+@section Les variables pour les répertoires d'installation
+
+Les répertoire d'installation devraient être toujours nommés au travers
+de variables, de telle sort qu'il soit facile d'installer à un endroit
+non-standard.  Les noms standards pour ces variables et les valeurs
+qu'elles devraient avoir dans un paquet GNU sont décrits ci-dessous. Ils
+sont basés sur un arrangement standard de système de fichiers_; des
+variantes sont utilisées pour GNU/Linux et les autres systèmes
+d'exploitation modernes.
+
+Les installeurs sont supposés remplacer ces valeurs quand ils lancent
+@command{make} (c.à.d., @kbd{make prefix=/usr install}) ou
+@command{configure} (c.à.d.., @kbd{configure --prefix=/usr}).  Les
+paquets GNU ne devraient pas essayer de deviner quelles valeurs donner à
+ces variables sur les systèmes où ils s'installent_: utilisez les
+réglages par défaut spécifiés ici de telle façon que tous les paquets
+GNU est le même comportement, ce qui permettra aux installateur
+d'obtenir les résultats escomptés.
+
+@cindex répertoires, créer une installation
+@cindex répertoires d'installation, création
+Tous les répertoires d'installation et leur répertoires parents
+devraient être créés (si nécessaire) avant qu'on y commence
+l'installation.
+
+Ces deux premières variables règlent la racine de l'installation.  Touts
+les autres répertoires d'installation devraient être des sous-répertoires
+de l'un de ces deux et rien ne devrait être installé directement sous
+ces deux répertoires.
+
+@table @code
+@item prefix
+@vindex prefix
+Un préfixe utilisé dans la construction de valeurs par défaut pour
+certaines des variables listées ci-dessous. La valeur par défault d'un
+@code{prefix} devrait être @file{/usr/local}. Quand on compile un
+système GNU complet, le préfixe est vide et @file{/usr} est le lien
+symbolique vers @file{/}.  (Si vous utilisez @code{Autoconf}, écrivez le
+comme @samp{@@prefix@@}.)
+
+Exécuter @samp{make install} avec une autre valeur de @code{prefix} que
+celui utilisé pour compiler le programme ne devraient @emph{pas}
+recompiler le progamme.
+
+@item exec_prefix
+@vindex exec_prefix
+Un préfixe utilisé pour construire des valeurs par défaut de certaines
+des variables listées ci-dessous. La valeur par défaut de
+@code{exec_prefix} devrait être @code{$(prefix)}.  (Si vous utilisez
+Autoconf, écrivez le comme @samp{@@exec_prefix@@}.)
+
+Générallement, @code{$(exec_prefix)} est utilisé pour les répertoires qui
+contiennent des fichiers spécifiques machine (comme les exécutables et
+les bibliothèques de sous-routines), pendant que @code{$(prefix)} est
+utilisé directement pour les autres répertoires.
+
+Exécuter @samp{make install} avec une autre valeur que @code{exec_prefix}
+ou de celles utilisées pour compiler le programme ne devrait @emph{pas}
+recompiler le programme.
+@end table
+
+Les programmes exécutables sont installés dans l'un des répertoires suivants.
+
+@table @code
+@item bindir
+@vindex bindir
+Les répertoires pour installer des programmes exécutable que les
+utilisateurs peuvent exécuter.  Ce devrait être normalement
+@file{/usr/local/bin}, mais écrivez le comme @file{$(exec_prefix)/bin}.
+(Si vous utilisez Autoconf, écrivez le comme @samp{@@bindir@@}.)
+
+@item sbindir
+@vindex sbindir
+Le répertoire pour installer les progammes exécutables, qui peuvent être
+exécuté depuis le Shell, mais qui sont généralement utiles pour
+l'adminitrateur système. Ce devrait être normalement
+@file{/usr/local/sbin}, mais écrivez le comme
+@file{$(exec_prefix)/sbin}.  (Si vous utilisez @code{Autoconf}, écrivez
+le comme @samp{@@sbindir@@}.)
+
+@item libexecdir
+@vindex libexecdir
+Le répertoire pour installer des programmes exécutables à faire exécuter
+par d'autres programmes plutôt que par les utilisateurs.  Ce répertoire
+devrait être @file{/usr/local/libexec}, mais s'écrit comme
+@file{$(exec_prefix)/libexec}.  (Si vous utilisez @code{Autoconf},
+écrivez le comme @samp{@@libexecdir@@}.)
+
+La définition de @samp{libexecdir} est la même pour tous les paquets,
+alors vous devriez installer vos données dans le sous-répertoire en
+conséquence. La plupart des paquets installent leur données sous
+@file{$(libexecdir)/@var{package-name}/}, éventuellement à l'intérieur
+des sous-répertoires additionnels comme 
+@file{$(libexecdir)/@var{package-name}/@var{machine}/@var{version}}.
+@end table
+
+Les fichier de données utilisés par le programme durant son exécution
+sont divisés en catégories de deux façons.
+
+@itemize @bullet
+@item
+Certains fichiers sont normalement modifiés par les programmes_; les
+autres ne sont normalement jamais modifiés (sauf si les utilisateurs en
+éditent certains).
+
+@item
+Certains fichiers sont indépendant de l'architecture du système et
+peuvent être partagés par toutes les machines sur un site_; d'autres
+dépendent de l'architecture système et ne peuvent être partagés que sur
+les machines compatibles avec ce système; d'autres peuvent ne jamais
+être partagés entre deux machines.
+@end itemize
+
+Ceci nous donne six possibilités différentes. Cependant, nous voulons
+décourager l'utilisation des fichiers dépendants de l'architecture
+fichiers, à part les fichiers objet et les bibliothèques. Il est
+beaucoup plus propre de faire d'autres fichiers de données indépendants
+de l'architecture système et ce n'est généralement pas difficile.
+
+Voici les variables que Makefiles devraient utiliser pour spécifier les
+répertoires où mettre ces différents types de fichier:
+
+@table @samp
+@item datarootdir
+La racine de l'arbre des répertoires pour les fichiers de données en
+lecture seule et indépendants de l'architecture. Ce devrait être
+normalement @file{/usr/local/share}, mais écrivez le comme
+@file{$(prefix)/share}.  (Si vous utilisez @code{Autoconf}, écrivez le
+comme @samp{@@datarootdir@@}.)  La valeur par défaut de @samp{datadir}
+est basée sur cette variable_; comme le sont @samp{infodir},
+@samp{mandir}, et d'autres.
+
+@item datadir
+Le répertoire pour installer les fichiers de données caractéristiques en
+lecture seul indépendant de l'architecture pour ce programme.  C'est
+normalement la même place que @samp{datarootdir}, mais nous utilisons
+les deux variables séparées de telle façon que vous puissiez déplacer
+ces fichiers spécifiques au programme sans altérer la localisation des
+fichiers @file{Info}, des pages @file{man} etc.
+
+@c raggedright  (not until next Texinfo release)
+@c end raggedright
+Ce devrait être normalement @file{/usr/local/share}, mais écrivez le comme
+@file{$(datarootdir)}.  (Si vous utilisez @code{Autoconf}, écrivez le
+comme @samp{@@datadir@@}.)
+
+La définition de @samp{datadir} est la même pour tous les paquets, donc
+vous devriez installer vos données sur ce sous-répertoire. La plupat des
+paquets installe leur données sous @file{$(datadir)/@var{package-name}/}.
+
+@item sysconfdir
+Le répertoire pour installer les fichiers en lecture seule qui ne
+concerne qu'une seule machine --- c'est à dire, les fichiers pour
+configurer un hôte. Les fichiers de configuration d'un gestionnaire de
+messages ou de réseau, @file{/etc/passwd}, ainsi de suite comme
+ci-dessous. Tous les fichiers de ce repertoire devrait être des fichiers
+texte en ASCII.  Ce répertoire devrait être normalement @file{/usr/local/etc},
+mais vous l'écrivez comme @file{$(prefix)/etc}.  (Si vous utilisez
+@code{Autoconf}, écrivez le comme @samp{@@sysconfdir@@}.)
+
+N'installez pas d'exécutables dans ce répertoire (ils appartiennent
+probablement aux répertoirs @file{$(libexecdir)} ou @file{$(sbindir)}).
+Aussi n'installez pas des fichiers qui sont modifiés dans le cours
+normal de leur utilisation (Les programmes dont l'objet est de changer
+la configuration du système sont exclus).  Ceci appartient probablement
+au répertoire @file{$(localstatedir)}.
+
+@item sharedstatedir
+Le répertoire pour installer les fichiers de données indépendants de
+l'architecture, que les programmes peuvent modifier quand ils
+s'exécutent.  Ce devrait être normalement @file{/usr/local/com}, mais
+écrivez le comme @file{$(prefix)/com}.  (Si vous utilisez
+@code{Autoconf}, écrivez le comme @samp{@@sharedstatedir@@}.)
+
+@item localstatedir
+Le répertoire pour installer des fichiers de données, que les programmes
+modifient quand ils s'exécutent et qui sont spécifique à une
+machine. Les utilisateurs ne devraient pas avoir besoin de modifier les
+fichiers dans ce répertoire pour configurer les opérations du paquet_;
+mettez ce genre d'information de configuration dans des fichiers séparés
+qui vont sur @file{$(datadir)} ou @file{$(sysconfdir)}. 
+@file{$(localstatedir)} devrait être normalement @file{/usr/local/var},
+mais écrivez le comme @file{$(prefix)/var}.  (Si vous utilisz
+@code{Autoconf}, écrivez le comme @samp{@@localstatedir@@}.)
+
+@item runstatedir
+Le répertoire pour installer les fichiers de données, que les programmes
+modifient quand il s'exécutent et qui sont spécifiques à une machine et
+qui ont besoin de persister plus longtemps que l'exécution du programme
+--- ce qui est généralement long, par exemple jusqu'au reboot. Les
+fichiers PID pour les démons système sont une utilisation typique. En
+addition, ce répertoire ne devrait jamais être nettoyés excepté peut
+être au momnet du reboot, alors que les répertoires généraux @file{/tmp}
+(@code{TMPDIR}) peuvent être nettoyés arbitrairement. Ce devrait être
+normalement @file{/var/run}, mais écrivez les
+@file{$(localstatedir)/run}.  Les avoir comme une variable séparée
+permet d'utiliser @file{/run} si désiré, par exemple.  (Si vous utilisez
+Autoconf 2.70 ou une version d'après, écrivez le comme @samp{@@runstatedir@@}.)
+@end table
+
+Ces variables specifient le répertoire pour y installer certains types
+de fichiers spécifiques, si votre programme les contient. Chaque paquet
+GNU devrait avoir des fichiers @file{Info}, donc tout programme a besoin
+de @samp{infodir}, mais tous n'ont pas besoin de @samp{libdir} ou de
+@samp{lispdir}.
+
+@table @samp
+@item includedir
+Le répertoire pour installer les fichiers d'en-têtes à inclure par les
+programmes utilisateur avec les directives @samp{#include} du
+pré-processeur C.  Ce devrait être normalement
+@file{/usr/local/include}, mais écrivez le comme @file{$(prefix)/include}.
+(Si vous utilisez @code{Autoconf}, écrivez le comme @samp{@@includedir@@}.)
+
+La plupart des compilateurs autres que GCC ne recherchent pas de
+fichiers d'en-têtes dans le répertoire @file{/usr/local/include}.  Donc
+installer les fichiers d'en-têtes de cette façon est seulement utile
+avec GCC.  Parfois ce n'est pas un problème, car certaines librairies ne
+sont vraiment faites que pour fonctionner avec GCC. Mais certaines
+bibliothèques sont faites pour fonctionner avec d'autres
+compilateurs. Elle devraient installer leur fichiers d'en-têtes à deux
+endroits, l'un spécifié par @code{includedir} et l'ature spécifié par
+@code{oldincludedir}.
+
+@item oldincludedir
+Le répertoire pour installer les fichiers d'en-têtes @samp{#include} à
+utiliser avec les compilateurs autres que GCC.  Ce devrait être
+normalement @file{/usr/include}.  (Si vous utilisez @code{Autoconf},
+vous pouvez l'écrire comme @samp{@@oldincludedir@@}.)
+
+Les commandes Makefile devraient vérifier si la valeur de @code{oldincludedir}
+est vide.  Si c'est le cas, elle ne devraient pas essayer de
+l'utiliser_; elles devraient annuler la deuxième installation des
+fichiers d'en-têtes.
+
+Un paquet ne devrait pas remplacer un fichier d'en-tête existant dans ce
+répertoire, sauf si le fichier d'en-tête vient du même paquet. Donc, si
+vote paquet @code{Foo} donne un fichier d'en-tête @file{foo.h}, alors il
+devrait installer le fichier d'en-tête dans le répertoire
+@code{oldincludedir} si soit (1) il n'y a pas de @file{foo.h} dedans ou
+(2) le fichier @file{foo.h} qui existe vient de ce paquet @code{Foo}.
+
+Pour dire si @file{foo.h} vient du paquet @code{Foo}, mettez une chaîne
+magique dans le fichier ---à l'intérieur d'un commentaire---et
+recherchez cette chaîne avec un @code{grep}.
+
+@item docdir
+Le répertoire pour installer les fichiers de documentation (autres que
+@code{Info}) pour ce paquet.  Par défaut, ce devrait être
+@file{/usr/local/share/doc/@var{yourpkg}}, mais vous devriez l'écrire
+comme @file{$(datarootdir)/doc/@var{yourpkg}}.  (Si vous utilisez
+@code{Autoconf}, écrivez le comme @samp{@@docdir@@}.)  Le
+sous-répertoire @var{yourpkg}, qui peut inclure un numéro de version,
+empèche les collisions entre les fichiers avec des noms identiques,
+comme le fichier @file{README}.
+
+@item infodir
+Le répertoire pour installer les fichiers @code{Info} pour ce paquet.
+Par défaut, ce devrait être @file{/usr/local/share/info}, mais vous
+devriez l'écrire comme @file{$(datarootdir)/info}.  (Si vous utiliser
+@code{Autoconf}, écriver le @samp{@@infodir@@}.)  @code{infodir} est
+séparé de @code{docdir} pour des raisons de compatibilité avec des
+pratiques existantes..
+
+@item htmldir
+@itemx dvidir
+@itemx pdfdir
+@itemx psdir
+Répertoires pour installer les fichiers de documentation dans un format particuler.
+Ils devraient tous être réglés à @code{$(docdir)} par défaut.  (Si vous
+utilisez @code{Autoconf}, écrivez les comme @samp{@@htmldir@@}, @samp{@@dvidir@@}, etc.)
+Les paques qui proposent plusieurs traductions à leur documentation devraient
+les installer dans @samp{$(htmldir)/}@var{ll}, @samp{$(pdfdir)/}@var{ll},
+etc. où @var{ll} est l'abréviation de la localisation comme @samp{en} ou
+@samp{pt_BR}.
+
+@item libdir
+Les répertoire pour les fichiers objet et les bibliothèques de code
+objet.  N'installez pas exécutables ici, ils devraient sûrement aller
+dans @file{$(libexecdir)} à la place.  La valeur de @code{libdir}
+devrait être normalement @file{/usr/local/lib}, mais écrivez la comme
+@file{$(exec_prefix)/lib}.  (Si vous utilisez @code{Autoconf}, écrivez
+le comme @samp{@@libdir@@}.)
+
+@item lispdir
+Le répertoire pour installer les éventuels fichier Emacs Lisp de ce
+paquets. Par défaut, ce devrait être
+@file{/usr/local/share/emacs/site-lisp}, mais vous devriez l'écrire
+comme @file{$(datarootdir)/emacs/site-lisp}.
+
+Si vous utilisez @code{Autoconf}, écrivez le choix par défaut
+@samp{@@lispdir@@}.  Pour que @samp{@@lispdir@@} fonctionne, vous aurez
+besoin des lignes suivantes dans votre fichier @file{configure.ac}_:
+
+@example
+lispdir='$@{datarootdir@}/emacs/site-lisp'
+AC_SUBST(lispdir)
+@end example
+
+@item localedir
+Le répertoire pour installer les catalogues de messages spécifiques à la
+localisation pour ce paquet. Par défaut, ce devrait être
+@file{/usr/local/share/locale}, mais vous devriez l'écrire comme
+@file{$(datarootdir)/locale}.  (Si vous utilisez @code{Autoconf},
+écrivez le comme @samp{@@localedir@@}.) Ce répertoire a normalement un
+sous-répertoire par localisation.
+@end table
+
+Les pages @code{man} dans le style Unix sont installées de la façon suivante_:
+
+@table @samp
+@item mandir
+Le répertoire du niveau le plus haut pour intaller les pages @code{man}
+(s'il y en a) pour ce paquet. Normallement ce serait
+@file{/usr/local/share/man}, mais vous devriez l'écrire comme
+@file{$(datarootdir)/man}.  (Si vous utilisez @code{Autoconf}, écriez le
+comme @samp{@@mandir@@}.)
+
+@item man1dir
+Le répertoire pour installer la section 1 des pages man. Ecrivez le comme
+@file{$(mandir)/man1}.
+@item man2dir
+Le répertoire pour installer la section 2 des pages man. Ecrivez le comme
+@file{$(mandir)/man2}
+@item @dots{}
+
+@strong{N'écrivez par le documentation d'origine d'un logiciel GNU comme
+un page man. Écrivez une manuel en Texinfo à la place. Les pages man
+sont juste pour les personnes utilisant des logiciels GNU sur Unix, ce
+qui n'est qu'une application secondaire.}
+
+@item manext
+L'extension de noms de fichiers pour les pages man installées. Cela
+devrait normalement contenir un point suivi par les chiffres
+appropriés_; cela devrait être normalement @samp{.1}.
+
+@item man1ext
+L'exention de nom de fichier pour les pages installées de le section 1.
+@item man2ext
+L'exention de nom de fichier pour les pages installées de le section 2.
+@item @dots{}
+Utilisez ces noms à la place de @samp{manext} si les paquets a besoin
+d'installer des pages man dans plus d'une section du manuel.
+@end table
+
+Et finallement, vous devriez avoir les variables suivantes_:
+
+@table @samp
+@item srcdir
+Le répertoire des fichiers source devant être compilés. La valeur de
+cette variable est normalement insérée par le code du script shell
+@code{configure}.  (Si vous utilisez @code{Autoconf}, utilisez
+@samp{srcdir = @@srcdir@@}.)
+@end table
+
+Par exemple:
+
+@smallexample
+# Common prefix for installation directories.
+# NOTE: This directory must exist when you start the install.
+prefix = /usr/local
+datarootdir = $(prefix)/share
+datadir = $(datarootdir)
+exec_prefix = $(prefix)
+# Where to put the executable for the command 'gcc'.
+bindir = $(exec_prefix)/bin
+# Where to put the directories used by the compiler.
+libexecdir = $(exec_prefix)/libexec
+# Where to put the Info files.
+infodir = $(datarootdir)/info
+@end smallexample
+
+Si votre programme installe un nombre important de fichiers sur l'un des
+répetoires standards spécifiques à l'utilisateur, il peut être utile de
+les regrouper en un sous-répertoire de ce programme. Si vous le faites,
+vous devriez écrire la règle @code{install} pour créer ces
+sous-répertoires.
+
+N'attendez pas que l'utilisateur inclue le nom du sous-répertoire dans
+la valeur d'aucun des variables citées ci-dessus. L'idée d'avoir un
+ensemble uniforme de noms de variables pour l'installation de
+répertoires est de permettre à l'utilisaeur de spécifier exactement les
+mêmes valeurs pour plusieurs paquets GNU différents. Pour que ça soit
+utile, tous les paquets doivent être conçus pour fonctionner de manière
+sensée quand l'utilisateur agit ainsi.
+
+À ce moment, il se peut que toutes ces variables ne soient pas
+implémentée dans la publication actuelle de @code{Autoconf} et/ou
+@code{Automake}_; mais depuis Autoconf@tie{}2.60, nous pensons qu'elles
+le sont toutes.  Quand il en manque beaucoup, les descriptions données
+ici servent de spécifications pour ce qu'@code{Autoconf} implémentera.
+En tant que programmeur, vous pouvez soit utiliser une version de
+dévelopment d'@code{Autoconf} ou éviter d'utiliser ces variables tant
+qu'une publication stable qui les supporte n'est pas faite.
+
+
+@node Cibles standards
+@section Cibles Standard pour les utilisateurs
+
+Touts les programmes GNU devraient avoir les cibles suivantes dans leur
+Makefiles:
+
+@table @samp
+@item all
+Compile le programme dans son entier.  Ce devrait être la cible par
+défaut. Cette civle n'a pas besoin de recompiler aucun fichier de
+documentation_; les fichiers @file{Info} devraient normalement être
+inclus dans la distribution, et les fichiers @file{DVI} (et les autres
+formats de documentation) devraient être compilés seulement que c'est
+explicitement demandé.
+
+Par défaut, les règles @code{Make} devraient compiler et lier avec
+@samp{-g}, de telle façon que les programmes aient les symboles de
+débogage.  Sinon, vous serez essentiellement sans recours face à un
+crash et il souvent loin d'être facile à reproduire avec une compilation
+fraichement refaite.
+
+@item install
+Compile les programmes et copie les exécutables, bibliothèques et tutti
+quanti sur les répertoires où ils doivent résider pour leur utilisation
+effective. S'il y a un test simple pour vérifier que ce programme est
+installé correctement, cette cible devrait le lancer.
+
+Ne dépouiller pas les exécutables de leur symboles de debogage quand
+vous les installez.  Ceci aide une éventuelle mise au point, qui
+pourrait être nécessaire plus tard et de nos jours l'espace disque n'est
+pas cher les chargeurs dynamiques s'assurent typiquement que les
+sections de débogage ne sont pas chargées pendant les exécution
+normales. Les utilisateurs qui ont besoin de binaires dépouillés de leur
+symboles de débogage devrait invoquer la cible @code{install-strip} pour
+y parvenir.
+
+Si possible, écrivez la règle cible @code{install} de telle façon
+qu'elle ne modifie rien dans le répertoire où le programme a été
+recompilé, en supposant que @samp{make all} vient juste d'être lancé.
+Ceci est pratique pour compiler un programme sous un nom d'utilisateur
+et pour l'installer sous un autre.
+
+les commandes devraient créer tous les répertoires dans lesquels des
+fichiers doivent être installés, s'ils n'existent pas déjà.  Ceci inclut
+les répertoires spécifié comme des valeurs des variables @code{prefix}
+et @code{exec_prefix}, comme tous les sous-répertoires qui sont
+nécessaires. Une façon de faire ceci est par le moyen d'une cible
+@code{installdirs} comme décrit ci-dessous.
+
+Utilisez le caaractère @samp{-} avant toute commande pour installer une
+page @file{man}, de telle façon que @code{make} ignore les erreurs.
+Ceci est pour le cas où il ait des systèmes qui n'aient pas les pages
+@code{man} du système Unix installé.
+
+La façon d'installer les fichiers @file{Info} est de les copier dans
+@file{$(infodir)} avec @code{$(INSTALL_DATA)}
+(@pxref{Les variables des commandes}) et d'exécuter le programme @code{install-info}
+s'il est présent.  Le programme @code{install-info} édite le fichiers
+@file{dir} des fichiers @file{Info} pour ajouter ou mettre à jour
+l'entrée de menu pour le fichier @file{Info} donné_; ceci fait parti du
+paquet @file{Texinfo}.
+
+Voici une règle simple pour installer un fichier @file{Info} et qui essait
+aussi de traiter quelques autres situations, comme le cas ou
+@code{install-info} n'est pas présent.
+
+@comment This example has been carefully formatted for the Make manual.
+@comment Please do not reformat it without talking to bug-make@gnu.org.
+@smallexample
+do-install-info: foo.info installdirs
+        $(NORMAL_INSTALL)
+# Prefer an info file in . to one in srcdir.
+        if test -f foo.info; then d=.; \
+         else d="$(srcdir)"; fi; \
+        $(INSTALL_DATA) $$d/foo.info \
+          "$(DESTDIR)$(infodir)/foo.info"
+# Run install-info only if it exists.
+# Use 'if' instead of just prepending '-' to the
+# line so we notice real errors from install-info.
+# Use '$(SHELL) -c' because some shells do not
+# fail gracefully when there is an unknown command.
+        $(POST_INSTALL)
+        if $(SHELL) -c 'install-info --version' \
+           >/dev/null 2>&1; then \
+          install-info --dir-file="$(DESTDIR)$(infodir)/dir" \
+                       "$(DESTDIR)$(infodir)/foo.info"; \
+        else true; fi
+@end smallexample
+
+Quand vous écrivez une cible @code{install}, vous devez classifier
+toutes les commandes dans trois catégories_: les commandes normales, les
+commandes de @dfn{pré-installation} et les commandes de
+@dfn{post-installation}. @xref{Catégories des commandes d'installation}.
+
+@item install-html
+@itemx install-dvi
+@itemx install-pdf
+@itemx install-ps
+Ces cibles installent la documentation dans d'autres formats
+qu'@code{Info}_; elles sont prévues pour être appelées explicitement par
+la personne qui veut installer le paquet si ce format est désiré.  GNU
+préfère les fichiers @file{Info}, donc ils doivent être installés par la
+cible @code{install}.
+
+Quand vous avez beacoup de fichier de documentation à installer, nous
+recommendons que vous évitiez la collision et les fouillis en vous
+arrangeant pour que ces cibles installent dans des sous-répertoires du
+répertoire d'installation approprié, comme @code{htmldir}.  Par exemple,
+si votre paquet a plusieurs manuels et que vous veuillez installer une
+documentation HTML avec beaucoup de fichiers (comme le mode ``split''
+obtenu par @code{makeinfo --html}), vous voudrez certainement utiliser
+des sous-répertoires ou deux nœuds avec le même nom mais dans deux
+manuels différents vous s'effacer l'un sur l'autre.
+
+Merci de fiare que ces cibles @code{install-@var{format}} invoque les commandes
+pour la cible @var{format}, par exemple en mettant @var{format} en dépendance.
+
+
+@item uninstall
+Efface et désinstalle les fichiers --- les copies que les cibles @samp{install} et
+@samp{install-*} ont crées.
+
+Cette règle ne devrait pas modifier les répertoires où la compilation
+est faite, seuls les répertoires où les fichiers sont installés.
+
+Les commandes de désinstallation sont divisées en trois catégories,
+juste comme les commandes d'installation.  @xref{Catégories des commandes d'installation}.
+
+
+@item install-strip
+Comme @code{install}, mais dépouille les fichiers exécutable de leur
+symbole de débogage quand ils les installe. Dans les cas simples, cette
+cible peut utiliser la cible @code{install} de façon simple_:
+
+@smallexample
+install-strip:
+        $(MAKE) INSTALL_PROGRAM='$(INSTALL_PROGRAM) -s' \
+                install
+@end smallexample
+
+Mais si le paquet installe les installe aussi des scripts comme des
+executables réels, la cible @code{install-strip} ne pourra pas juste se
+référer à la cible @code{install}_; il faudra dépouiller les
+exécutables, mais pas les scripts.
+
+La cible @code{install-strip} ne devrait pas dépuiller les exécutables
+qui ont été copiés sur le répertoire de compilation au moment de
+l'installation.  Elle ne devrait dépouiller que les copies qui sont
+installées.
+
+Normalement nous ne recommandons pas de dépouiller un exécutable, sauf
+si vous être sûr que le programme n'a aucun défaut.  Cependant, il peut
+être raisonnable d'installer une version sans symbole de debogage pour
+une execution effective tout en conservant une version non dépouillée
+autre part en cas d'incident.
+
+
+@item clean
+Efface tous les fichiers dans le répertoire courant, qui sont
+normalement crées par la compilation. Efface aussi les fichiers dans les
+autres répertoires, s'ils sont créés par ce @file{makefile}.  Cependant,
+n'efface pas les fichiers qui enregistrent la configuration.  Elle
+préserve aussi les fichiers qui pourraient être crées par la
+compilation, mais ne sont pas normalement présent car la distribution
+vient avec eux.  Il n'y a pas besoin d'effacer les répertoires parents
+qui ont été créés avec @samp{mkdir -p}, car ils auraient pu exister de
+toutes manières.
+
+Efface les fichiers @file{.dvi} ici, s'ils ne font pas parties de la
+distribution.
+
+@item distclean
+Efface tous les fichiers dans le répertoire courant (ou créés par ce
+@file{makefile}) qui sont créés par la configuration ou la compilation
+du programme.  Si vous avez des sources non empaquetées et que vous
+aillez compilé le programme sans créer d'autres fichiers, 
+@samp{make distclean} devraiet laisser seulement les fichiers qui
+étaient dans la distribution.  Cependant, il n'y a pas besoin d'effacer
+les répertoires parents qui auraient été crées par @samp{mkdir -p}, car
+ils auraient pu exister de toutes manières.
+
+@item mostlyclean
+Comme @samp{clean}, mais s'empèche d'effacer certains fichiers que les
+gens normalement ne veulent pas recompiler.  Par exemple, la cible
+@samp{mostlyclean} pour GCC n'efface pas @file{libgcc.a},
+car sa recompilation est rarement nécessaire et qu'elle prend beaucoup
+de temps.
+
+@item maintainer-clean
+Efface presque tout ce qui peut être reconstruit avec ce @file{Makefile}.  Ceci
+inclue typiquement tout ce qui est effacé par @code{distclean}, et en
+plus: les fichier source C produits par Bison, les tables de
+@code{tags}, les fichiers @file{Info} etc.
+
+La raison pour laquelle nous disons ``presque tout'' est que qu'exécuter
+@samp{make maintainer-clean} ne devrait pas effacer le fichier
+@file{configure} même s'il peut être refaire en utilisant les règles du
+@file{Makefile}.  Plus généralement, @samp{make maintainer-clean} ne
+devraint pas effacer quoique que ce soit qui a besoin d'exister pour
+exécuter le script @file{configure} et commencer la compilation du
+programme.  Aussi, il n'y a pas besoin d'effacer les répertoires parents,
+qui ont été créés avec @samp{mkdir -p}, car ils auraient pu exister de
+toutes manières. Ce sont les seuls exceptions_; @code{maintainer-clean}
+devraint tout le reste de ce qui peut être recompilé.
+
+La cible @samp{maintainer-clean} est prévue d'être utilisée par un
+mainteneur du paquet et non un utilisateur normal.  Vous pourriez avoir
+besoin d'outils particuliers pour reconstruire certains de fichiers que
+@samp{make maintainer-clean} a effacés. Comme ces fichier sont
+normalement inclus dans la distribution, nous n'avons pas à nous soucier
+des rendre simples à reconstuire.  Si vous trouvez, que vous avez besoin
+de désempacter à nouveau la distribution complète, ne vennez pas vous
+plaindre.
+
+Pour mettre les utilisateurs au courant de ceci, utilisez les commandes
+pour la cible spéciale @code{maintainer-clean} devraient débuter avec
+ces avetissements_:
+
+@smallexample
+@@echo 'This command is intended for maintainers to use; it'
+@@echo 'deletes files that may need special tools to rebuild.'
+
+@@echo 'Cette commande est prévue pour l'utilisation par les mainteneurs_;'
+@@echo 'Elle efface les fichiers qui pourraient demander des outils'
+@@echo 'particuliers pour leur recompilation.'
+@end smallexample
+
+@item TAGS
+@c ADR: how?
+Mets à jours du table d'indicateurs (n.d.t @code{tags}) pour ce programme.
+
+@item info
+Génère les fichiers @file{Info} si besoin.  La meilleure façon d'écrire
+ces règle est la suivante_:
+
+@smallexample
+info: foo.info
+
+foo.info: foo.texi chap1.texi chap2.texi
+        $(MAKEINFO) $(srcdir)/foo.texi
+@end smallexample
+
+@noindent
+Vous devez déclarer la variable @code{MAKEINFO} dans le @file{
+Makefile}.  Cela devrait lancer le programme @code{makeinfo}, qui fait
+partie de la distribution @file{Texinfo}.
+
+Normalement les distributions GNU viennent avec leurs fichies
+@file{Info} et ceci veut dire les fichies @file{Info} sont présent dans
+le répertoire source.  Donc la règle Make pour fichier info devrait
+opérer dans le répertoire source. Quand les utilisateurs compilent le
+paquet, un Make ordinaire ne mettra pas à jout les fichiers Info
+parcequ'ils sont déjà à jour.
+
+@item dvi
+@itemx html
+@itemx pdf
+@itemx ps
+Génère les fichiers de documentation dans le format donné. Ces cibles
+devraient toujours exister, mais n'importe quelle d'entre-elles ou toute
+peut devenir un point de bloquage if le format donné ne peut pas être
+généré. Ces cibles ne devraient pas être des dépendances de la cible
+@code{all}_; l'utilisateur devrait les invoquer manuellement à chaque
+fois.
+
+Voici un exemple de règle générant des fichiers DVI depuis Texinfo:
+
+@smallexample
+dvi: foo.dvi
+
+foo.dvi: foo.texi chap1.texi chap2.texi
+        $(TEXI2DVI) $(srcdir)/foo.texi
+@end smallexample
+
+@noindent
+Vous devez définir la variable @code{TEXI2DVI} dans le Makefile.  Elle
+devrait exécuter le programme @code{texi2dvi}, qui fait partie de la
+distribution Texinfo.  (@code{texi2dvi} utilise @TeX{} pour accomplir sa
+tâche effective de formattage. @TeX{} n'est pas distribué avec Texinfo.)
+Alternativement, n'écrivez que les dépendances et laissez GNU
+@code{make} fournir la commande.
+
+Voici un autre exemple, celui-ci pour générer du HTML à partir de
+@code{Texinfo}_:
+
+@smallexample
+html: foo.html
+
+foo.html: foo.texi chap1.texi chap2.texi
+        $(TEXI2HTML) $(srcdir)/foo.texi
+@end smallexample
+
+@noindent
+De nouveau, vous devriez définir la variable @code{TEXI2HTML} dans le
+Makefile_; par exemple, elle pourrait lancer @code{makeinfo --no-split
+--html} (@command{makeinfo} fait partie de la distribution Texinfo).
+
+@item dist
+Crée une distribution en fichier @file{tar} de ce programme.  Le fichier
+@file{tar} devrait être réglé de telle façon que les noms de fichiers
+dans fichier @file{tar} démarre au niveau du sous-répertoire qui est le
+nom du paquet de cette distribution.  Ce nom peut inclure un numéro de
+version.
+
+Par exemple, la distribution en fichier @file{tar} de GCC version 1.40
+va se désempacter dans un sosu-répertoire ayant pour nom @file{gcc-1.40}.
+
+La façon les plus simple de faire ceci est de créer un sous-répertoire
+avec le nom approprié, d'utiliser @code{ln} ou @code{cp} pour y
+installer les fichiers que l'on veut dedans et d'ensuite de faire un
+@code{tar} de ce sous-répertoire.
+
+Compressez le fichier @file{tar} avec @code{gzip}.  Par exemple, la
+distribution effective de la version 1.40 GCC s'appelle
+@file{gcc-1.40.tar.gz}.  On peut aussi utiliser d'autre format de
+compression.
+
+La cible @code{dist} devraint dépendre explicitement de tous les
+fichiers non-source qui sont dans la distribution, pour être sûr qu'ils
+seront à jour dans la distribution.
+@ifset CODESTD 
+@xref{Releases, , Making Releases}.
+@end ifset
+@ifclear CODESTD
+@xref{Releases, , Making Releases, standards, GNU Coding Standards}.
+@end ifclear
+
+@item check
+Effecture les auto-test (s'il y en a). L'utilisateur doit compiler son
+programme avant de lancer les tests, mais il n'a pas besoin d'installer
+le programme_; vous devriez écrire les auto-tests de façon à ce qu'ils
+fonctionnent quand le programme est compilé, mais pas encore installé.
+@end table
+
+Les cibles suivantes sont suggérées comme des noms conventionnels, pour
+les programmes où elles sont utiles.
+
+@table @code
+@item installcheck
+Effectue des tests d'installation (s'il y an). L'utilisateur doit
+compiler et installer le programme avant de pouvoir effectuer ces
+tests. Vous ne devriez pas fair l'hyopothèse que @file{$(bindir)} est
+dans le chemin de recherche @file{PATH}.
+
+@item installdirs
+Il est utile d'ajouter une cible nommée @samp{installdirs} pour créer
+les répertoires où les fichiers seront installés ainsi que leur
+répertoires parents. Il y a un script appelé @file{mkinstalldirs} qu'il
+est pratique d'utiliser pour cela_; vous le trouverez dans le paquet
+Gnulib. Voici une règle pour lui_:
+
+@comment This has been carefully formatted to look decent in the Make manual.
+@comment Please be sure not to make it extend any further to the right.--roland
+@smallexample
+# Make sure all installation directories (e.g. $(bindir))
+# actually exist by making them if necessary.
+installdirs: mkinstalldirs
+        $(srcdir)/mkinstalldirs $(bindir) $(datadir) \
+                                $(libdir) $(infodir) \
+                                $(mandir)
+@end smallexample
+
+@noindent
+ou, si vous voulez supporter @env{DESTDIR} (fortement encouragé),
+
+@smallexample
+# Make sure all installation directories (e.g. $(bindir))
+# actually exist by making them if necessary.
+installdirs: mkinstalldirs
+        $(srcdir)/mkinstalldirs \
+            $(DESTDIR)$(bindir) $(DESTDIR)$(datadir) \
+            $(DESTDIR)$(libdir) $(DESTDIR)$(infodir) \
+            $(DESTDIR)$(mandir)
+@end smallexample
+
+Cette règle ne devrait pas modifier les répertoires où s'effectue la
+compilation. Elle ne devrait rien faire d'autre que de créer le
+répertoire d'installation.
+@end table
+
+@node Catégories des commandes d'installation
+@section Catégories des commandes d'installation
+
+@cindex commandes de pré-installation
+@cindex commandes de post-installation
+Quand vous écrivez une cible @code{install}, vous devez classifier
+toutes les commandes en trois catégories_: les commandes normales, les
+commandes de @dfn{pré-installation} et les commmandes de
+@dfn{post-installation}.
+
+Les commandes noramles mettent les fichiers à leur propres places et
+règlent leur modes. Elles peuvent affecter aucun fichiers excepté ceux
+qui viennent avec le paquet auquel ils appartiennent.
+
+Les commandes de pré- et post-installation peuvent affecter d'autres
+fichiers_; en particulier, elles peuvent éditer des fichiers de
+configuration globaux ou des bases de données.
+
+Les commandes de pré-installation sont exécuté typiquement avant les
+commandes normales, les commandes de post-installation sont typiquement
+exécuté après.
+
+L'utilisation la plus commune d'une commande de post-installation est de
+lancer @code{install-info}.  Ceci ne peut pas être fait avec une
+commande normale, car ceci altère un fichier (le répertoire Info) qui ne
+vient pas entièrement et seulement du paquet qui est installé. C'est une
+commande de post-installation car elle a besoin d'être lancée après une
+commande normale qui installe le fichier @file{Info} du paquet.
+
+La plupart des programmes n'ont pas besoin de commande de
+pré-installation, mais la fonctionalité existe au cas où ce serait
+nécessaire.
+
+Pour classifier les commandes dans ces trois catégories dans les règles
+de @code{install}, inserez des @dfn{lignes de categories} entre elles.
+Une ligne de categorie spécifie la catégorie pour les commandes qui suivent.
+
+Une ligne de catégorie consiste en une tabulation et une référence à une
+variable spéciale de Make, plus un commentaire optionnel à la fin. Trois
+variables peuvent être utilisées, une pour chacune des catégories_; le
+nom de la variable specifie la categorie. Les lignes de categorie ne
+sont pas des lignes opérationnelles en exécution ordinaire, car ces
+trois variables sont normalement indéfinies (et vous ne @emph{devriez pas}
+les définir dans le makefile).
+
+Voici les trois catégories possibles, chacune avec un commentaire expliquant
+ce dont il s'agit_:
+
+@smallexample
+        $(PRE_INSTALL)     # @r{Pre-install commands follow.}
+        $(POST_INSTALL)    # @r{Post-install commands follow.}
+        $(NORMAL_INSTALL)  # @r{Normal commands follow.}
+@end smallexample
+
+Si vous ne spécifiez pas de ligne de catégorie au début des règles
+@code{install}, toutes les commandes sont alors classifiées comme
+normales jusqu'à la première ligne de catégorie.  Si vous n'utilisez pas
+de lignes de catégories, toutes les commandes sont classifées comme normales.
+
+Voici ces lignes de catégoies pour @code{uninstall}:
+
+@smallexample
+        $(PRE_UNINSTALL)     # @r{Pre-uninstall commands follow.}
+        $(POST_UNINSTALL)    # @r{Post-uninstall commands follow.}
+        $(NORMAL_UNINSTALL)  # @r{Normal commands follow.}
+@end smallexample
+
+Les commandes de pré-désinstallation sont typiquement utilisées pour
+effacer les entrées du répertoire @file{Info}.
+
+Si les cibles @code{install} ou @code{uninstall} ont des dépendances
+qui se comportent comme des sous-routines de l'installation, alors vous
+devriez démarrer @emph{chacune} des commandes de dépendance avec une
+ligne de categorie, et démarrer chacune des commandes de cibles principales
+avec aussi une ligne de catégorie.  De cette façon, vous pouvez vous
+assurer que chaque commande est placée dans le bonne catégorie,
+indépendament de la dépendance qui est effictivement exécutée.
+
+Les commandes de pré- et post-installation ne devraient lancer aucun
+autres programmes que ceci_:
+
+@example
+[ basename bash cat chgrp chmod chown cmp cp dd diff echo
+egrep expand expr false fgrep find getopt grep gunzip gzip
+hostname install install-info kill ldconfig ln ls md5sum
+mkdir mkfifo mknod mv printenv pwd rm rmdir sed sort tee
+test touch true uname xargs yes
+@end example
+
+@cindex paquets binaires
+Les commandes sont distinguées de cette manière pour faire des paquets
+binaires. Un paquet binaire contient typiquement tous les exécutables et
+d'autres fichiers, qui doivent être installés et a sa propre méthode
+pour les installer --- pour qu'il n'ait pas besoin d'utiliser la
+commande normale d'installation. Mais l'installation d'un paquet binaire
+nécessite l'exécution de commandes de pré et de post intallation.
+
+Les paquet pour compiler des paquets binaires fonctionnent en extrayant
+les commandes de pré- et post-installation. Voici une façon d'extraire
+la commande de pré-installation (l'option @option{-s} de @command{make}
+est nécessaire pour rendre silencieux les messages d'entrée dans les
+sous-répertoires):
+
+@smallexample
+make -s -n install -o all \\
+      PRE_INSTALL=pre-install \\
+      POST_INSTALL=post-install \\
+      NORMAL_INSTALL=normal-install \\
+  | gawk -f pre-install.awk
+@end smallexample
+
+@noindent
+où le fichier @file{pre-install.awk} pour contenir ceci_:
+
+@smallexample
+$0 ~ /^(normal-install|post-install)[ \t]*$/ @{on = 0@}
+on @{print $0@}
+$0 ~ /^pre-install[ \t]*$/ @{on = 1@}
+@end smallexample

@@ -1,0 +1,207 @@
+@c -*- coding: utf-8-unix; mode: texinfo; mode: auto-fill; ispell-local-dictionary: "francais" -*-
+
+@node Notes sur la traduction
+@unnumbered Notes sur la traduction
+@cindex traduction Française
+@cindex traduction, Française
+
+
+@c License pour la traduction
+@c @node Avertissement
+@c @section Avertissement
+
+Nous espérons que cette traduction en Français du manuel de @code{make}
+aidera le public Francophone à mieux comprendre les arcanes de ce
+programme très répandu dans le monde Unix/Linux pour l'installation de
+logiciels. Comme il en sera question plus loin, ce programme peut
+s'étendre à d'autres domaines et devenir un outil général très pratique
+dans les mains d'un utilisateur expérimenté. C'est donc un outil qui
+gagne à être connu.
+
+Le manuel est distribué sous une licence GPL (``GNU public licence'')
+dont une copie est donnée plus loin. La traduction suit les mêmes
+règles. Elle est distribuée librement à tous pour en faire l'usage qu'il
+en veut excepté de priver de liberté les autres utilisateurs. Les
+traducteurs ne prennent aucune responsabilité sur toute erreur ou
+dommage pouvant venir d'une erreur ou d'un manque de clarté dans la
+traduction. La version Anglaise reste disponible en cas de besoin et les
+sections suivantes aideront ceux qui veulent se plonger dans le détail
+de la traduction à mettre la version Française en parallèle avec la
+version Anglaise.
+
+
+
+@c @node Quelques mots
+@unnumberedsec Quelques mots sur la traduction en Français
+
+Les parties non encore traduites sont conservées en Anglais et leur
+titre a la mention @emph{NT} (pour Non Traduit). La traduction cherche a
+être la plus claire possible pour le public Francophone tout en gardant
+l'ensemble des informations comprises dans le manuel. Par contre il a
+parfois fallu faire des choix de traduction. De temps en temps une
+parenthèse avec le signe @emph{ndt.} (Note De Traduction) donne une
+explication complémentaire, comme par exemple le terme Anglais quand il
+peut y avoir un intérêt à le connaître.
+
+La section détaille les choix de traduction de certains termes clefs, ce
+qui est utile pour un autre traducteur, pour conserver l'unité cette
+traduction ou pour simplement rechercher une correspondance avec le
+texte en Anglais. Ces sections ne sont pas nécessaires pour une première
+lecture.
+
+
+@c @node Choix de traduction
+@unnumberedsec Traductions choisies pour quelques mots clés
+
+Cette section liste les choix de traduction qui ont été faits pour
+certains termes particuliers. Le Français reste une langue proche de
+l'Anglais, néanmoins, il n'est jamais possible de faire une traduction
+mot à mot. Des choix ont dû être faits et la clareté de la version
+Française résultante a toujours été priviligiée, peut être au détriment
+d'images utilisées dans le texte d'origine ou d'un certain style. Ne
+sont retenus ici que les choix les plus pertinents à partager dans un
+récapitulatif. Ces choix n'ont rien d'universel et restent particulier
+au contexte de cette traduction.
+
+
+@multitable @columnfractions .30 .70
+@headitem Anglais @tab Français
+
+@item
+antislash @tab barre oblique inversée
+
+@item
+Acknowledgements @tab remerciements
+
+@item
+backquotes @tab guillemets penchées
+
+@item
+bug @tab erreur
+
+@item
+to built @tab construire, compiler
+
+@item
+built-in @tab intégré, pré-défini
+
+@item
+colon @tab double point
+
+@item
+computed @tab calculé (à défaut d'une meilleure idée)
+
+@item
+dedications @tab dédicaces
+
+@item
+double colon @tab double double points
+
+@item
+endorsement @tab approbation
+
+@item
+to expand @tab développer
+
+@item 
+flag @tab option
+
+@item
+flavor @tab catégorie
+
+@item
+goal @tab objectif
+
+@item
+job @tab tâche
+
+@item
+job slot @tab créneau de tâche
+
+@item
+to make @tab faire, compiler (selon le contexte)
+
+@item
+to match @tab faire correspondre
+
+@item
+to nest @tab lier, imbriquer
+
+@item
+operating system (os) @tab système d'exploitation
+
+@item
+overriden @tab surchargé
+
+@item
+pattern @tab modèle
+
+@item
+to print @tab retourner (sous-entendu à l'écran)
+
+@item
+recipe @tab instruction
+
+@item
+readability @tab lisibilité
+
+@item
+termination @tab révocation
+
+@item
+semi colon @tab point virgule
+
+@item
+serial execution @tab exécution séquentielle
+
+@item
+slash @tab barre oblique
+
+@item
+canned recipes, canned commands @tab séquence enregistrée
+
+@item
+to scan @tab analyser
+
+@item
+stem @tab radical
+
+@item
+string @tab chaîne (ou chaîne de caractères)
+
+@item
+special character @tab caractère générique
+
+@item
+to split @tab couper (parfois interrompre)
+
+@item
+verbatim @tab « mot pour mot », « tel que » ou verbatim (latin)
+
+@item
+wildcard @tab générique
+
+@end multitable
+
+
+@unnumberedsec Commentaires sur les choix de traduction
+
+Le texte original en Anglais parle de règles qui se décomposent en
+recettes (``recipes'') et de variables qui ont différentes saveurs
+(``flavor''). Mais ce début culuniaire prometteur se gâte quand on arrive
+aux recettes de boites de conserve (``canned recipes'').
+
+Le terme ``recette'' fait ici allusion au fait que l'on se préoccupe pas
+nécessairement de comprendre les instructions qui la compose@tie{}: on
+les suit à la lettre et au final ``ça marche'' magiquement, comme une
+bonne recette de cuisine héritée de sa grand mère. Mais le terme est
+aussi utilisé dans le contexte de ``lignes de recette'', ce qui en
+Français devient beaucoup moins poétique, surtout dans un domaine
+informatique, rappelant immanquablement des manipulations de chiffres.
+
+La traduction proposée supprime ces images et les remplace par des images
+plutôt martiales, avec des règles qui se déclinent en instructions,
+instructions qui sont suivies à la lettre... C'est moins poétique, mais
+plus clair pour un texte qui propose déjà beaucoup de concepts à
+assimiler.
+
