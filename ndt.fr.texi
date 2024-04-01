@@ -1,6 +1,6 @@
 @c -*- coding: utf-8-unix; mode: texinfo; mode: auto-fill; ispell-local-dictionary: "francais" -*-
 
-@node Notes sur la traduction
+@node NDT
 @unnumbered Notes sur la traduction
 @cindex traduction Française
 @cindex traduction, Française

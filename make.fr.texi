@@ -97,6 +97,153 @@ Cover art by Etienne Suvasa.
 @insertcopying
 @end ifnottex
 
+@menu
+* Vue générale                     ::  Vue générale de make.
+* Introduction                     ::  Une introduction aux Makefiles.
+* Les Makefiles                    ::  Écrire les Makefiles.
+* Les règles                       ::  Écrire des règles.
+* Les instructions                 ::  Écrire des instructions dans les règles.
+* Utiliser les variables           ::  Comment utiliser les variables.
+* Les parties conditionnelles      ::  Parties conditionnelles d'un Makefile.
+* Les fonctions                    ::  Fonctions pour transformer du texte.
+* Exécuter make                    ::  Comment exécuter @code{make}.
+* Les règles implicites            ::  Utiliser les règles implicites.
+* Les fichiers archivés            ::  Using @code{make} to Update Archive Files .
+* Compléter make par des extensions::  Étendre GNU @code{make} par des extensions.
+* Intégrer make                    ::  Intégrer GNU @code{make}.
+* Fonctionalités                   ::  Fonctionalités of GNU @code{make} (NT).
+* Manquants                        ::  Incompatibilités et fonctionalités manquantes (NT).
+
+@detailmenu
+ --- The Detailed Node Listing ---
+
+Vue générale de make.
+* Comment lire ce manuel           ::  Comment lire ce manuel.
+* Problèmes et erreurs             ::  Problèmes et erreurs.
+* NDT                              ::  Notes du Traducteur
+
+Une introduction aux Makefiles.
+* Introduction aux règles          ::  À quoi ressemble une règle.
+* Un makefile simple               ::  Un Makefile simple.
+* Comment fonctionne Make          ::  Comment make traite un Makefile.
+* Les variables simplifient        ::  Les variables rendent les Makefiles plus simples.
+* Laisser make déduire             ::  Laisser @code{make} déduire les instructions.
+* Combiner les pré-requis.         ::  Un autre style de Makefile.
+* Nettoyage                        ::  Règles pour nettoyer le répertoire.
+
+Écrire les Makefiles.
+* Le contenu d'un makefile         ::  Que contient un makefile.
+* Les noms des makefiles           ::  Quel nom donner à votre Makefile.
+* Inclure d'autres makefiles       ::  Inclure d'autres Makefiles.
+* La Variable MAKEFILES            ::  La Variable @code{MAKEFILES}.
+* Reconstruire les Makefiles       ::  Comment les Makefiles sont refabriqués.
+* Forcer les makefiles             ::  Remplacer les parties d'un autre Makefile.
+* Lire les Makefiles               ::  Comment @code{make} lit les Makefile.
+* Analyser les makefiles           ::  Comment sont analysés les Makefiles.
+* Les développements secondaires   ::  Les développements secondaires.
+
+Écrire des règles.
+* Exemple de règle                 ::  Exemple de règle.
+* Règles syntaxiques               ::  Règles syntaxiques.
+* Les types de pré-requis          ::  Types de pré-requis.
+* Les caractères génériques        ::  Noms de fichiers avec caractères génériques.
+* Rechercher dans les répertoires  ::  Rechercher les pré-requis dans un répertoire.
+* Les cibles fictives              ::  Les cibles fictives.
+* Les cibles forcées               ::  Règles sans instructions ni pré-requis.
+* Les cibles vides                 ::  Des fichiers vides pour enregistrer un évènement.
+* Les cibles spéciales             ::  Les noms spéciaux de cibles déjà intégrés.
+* Les cibles multiples             ::  Les cibles multiples pour une règle.
+* Les règles multiples             ::  Les règles multiples pour une cible.
+* Les modèles statiques            ::  modèles statiques de règles.
+* Double double points             ::  Règles avec double double points.
+* Pré-requis automatiques          ::  Générer les pré-requis automatiquement.
+
+Écrire des instructions dans les règles.
+* La syntaxe des instructions      ::  La syntaxe des instructions.
+* Donner un retour                 ::  Recipe Echoing.
+* Exécution                        ::  Exécuter une instruction.
+* Parallèle                        ::  Exécution parallèle.
+* Erreurs dans les instructions    ::  Erreurs dans les instructions.
+* Interruptions                    ::  Arrêter ou interrompre @code{make}.
+* Récursion                        ::  Usage récursif de @code{make}.
+* Les séquences enregistrées       ::  Définir des séquences à enregistrer.
+* Instructions vides               ::  Utiliser les instructions vides.
+
+Comment utiliser les variables.
+* Référencer une variable          ::  Référencer les variables.
+* Deux catégories de variables     ::  Les deux catégories de variables.
+* Fonctionalité avancée des variables::  Fonctionalités avancées des référencements de variables.
+* Les valeurs des variables        ::  Comment les variables obtiennent leur valeurs.
+* Définir une variable             ::  Définir les variables.
+* Rajouter du texte à une variable ::  Rajouter du texte à une variable.
+* Directive de forçage             ::  La directive @code{override}.
+* Variables sur plusieurs lignes   ::  Définir une variable sur plusieurs lignes.
+* Directive indéfinie              ::  Variables indéfinie.
+* Variables d'environnement        ::  Variables venant de l'environnement.
+* Variables spécifiques à la cible ::  Valeur des variables spécifiques à la cible.
+* Variables spécifiques au modèle  ::  Valeurs de variables spécifiques aux modèles.
+* Supprimer l'héritage             ::  Supprimer l'héritage.
+* Variables spéciales              ::  Autre variables spéciales.
+
+Parties conditionnelles d'un Makefile.
+* Exemple d'expression conditionnelle::  Example d'une partie conditionnelle.
+* Syntaxe conditionnelle           ::  Syntaxe des expresions conditionnelles.
+* Option indicatrice de test       ::  Partie conditionelles testant une option.
+
+Fonctions pour transformer du texte.
+* Syntaxe des fonctions            ::  Syntaxe d'un appel de fonction.
+* Fonctions de texte               ::  Fonctions pour les subtitutions de chaînes et analyses.
+* Les fonctions de noms de fichier ::  Les fonctions de noms de fichiers.
+* Fonctions conditionnelles        ::  Fonctions conditionnelles.
+* La fonction Foreach              ::  La fonction @code{foreach}.
+* La fonction File                 ::  La fonction @code{file}.
+* La fonction Call                 ::  La fonction @code{call}.
+* Fonction Value                   ::  La fonction @code{value}.
+* Fonction Eval                    ::  La fonction @code{eval}.
+* La fonction origin               ::  La fonction @code{origin}.
+* La fonction Flavor               ::  La fonction @code{flavor}.
+* Les fonctions de contrôle de Make::  Fonctions de contrôle de Make.
+* La fonction shell                ::  La fonction @code{shell}.
+* La fonction Guile                ::  La fonction @code{guile}.
+
+Comment exécuter @code{make}.
+* Les arguments d'un Makefile      ::  Arguments pour spécifier le Makefile.
+* Objectifs                        ::  Arguments pour spécifier les objectifs.
+* À la place d'une exécution       ::  À la place d'exécuter une instruction.
+* Éviter de recompiler             ::  Éviter de recompiler certains fichiers.
+* Forcer                           ::  Remplacer la valeur des variables.
+* Tester                           ::  Tester la compilation d'un programme.
+* Résumé des options               ::  Résumé des options.
+
+Utiliser les règles implicites.
+* Utiliser les règles implicites   ::  Utiliser les règles implicites.
+* Catalogue des règles             ::  Catalogue des règles prédéfinies.
+* Les variables implicites         ::  Les variables utilisées par les règles implicites.
+* Enchaînement de règles implicites::  Enchaînement de règles implicites.
+* Modèle de règles                 ::  Définir et redéfinir des modèles de règles.
+* Dernier ressort                  ::  Définir les règles de dernier ressort par défaut.
+* Règle des suffixes               ::  Ancienne règle des suffixes.
+* Recherche de règles implicites   ::  Algorithme de recherche de règle implicite.
+
+Using @code{make} to Update Archive Files .
+* Les membres d'une archive        ::  Membres d'une archive comme cibles.
+* Archive Update                   ::  Règle implicite pour les membres d'une archive.
+* Archive Pitfalls                 ::  Les dangers d'utiliser des archives (NT).
+* Archive Règle des suffixes       ::  Règle des suffixes pour les fichiers d'archive (NT).
+
+Étendre GNU @code{make} par des extensions.
+* Intégration de Guile             ::  GNU Intégration de Guile (NT).
+* Charger des objets dynamiquement ::  Charger des objets dynamiquement (NT).
+
+Intégrer GNU @code{make}.
+* Job Slots                        ::  Sharing Job Slots with GNU @code{make} (NT).
+* Terminal Output                  ::  Synchronized Terminal Output (NT).
+
+Fonctionalités of GNU @code{make} (NT).
+
+Incompatibilités et fonctionalités manquantes (NT).
+@end detailmenu
+@end menu
 
 @include ndt.fr.texi
 
@@ -106,9 +253,9 @@ Cover art by Etienne Suvasa.
 @chapter Vue générale de make
 
 L'outil @code{make} détermine automatiquement pour un gros programme,
-quelles parties nécessitent une recompilation et lance les commandes pour
-le faire.  Ce manuel décrit GNU @code{make}, qui a été implémenté par
-Richard Stallman et Roland McGrath. Depuis la version 3.76 le
+quelles parties nécessitent une recompilation et lance les commandes
+pour le faire.  Ce manuel décrit GNU @code{make}, qui a été implémenté
+par Richard Stallman et Roland McGrath. Depuis la version 3.76 le
 développement est géré par Paul D. Smith.
 
 GNU @code{make} est en conformité avec la section 6.2 de
@@ -258,6 +405,16 @@ exécutable de ce programme @code{edit}.
 @cindex recompilation
 @cindex edit
 
+@menu
+* Introduction aux règles          ::  À quoi ressemble une règle.
+* Un makefile simple               ::  Un Makefile simple.
+* Comment fonctionne Make          ::  Comment make traite un Makefile.
+* Les variables simplifient        ::  Les variables rendent les Makefiles plus simples.
+* Laisser make déduire             ::  Laisser @code{make} déduire les instructions.
+* Combiner les pré-requis.         ::  Un autre style de Makefile.
+* Nettoyage                        ::  Règles pour nettoyer le répertoire.
+@end menu
+
 @node Introduction aux règles, Un makefile simple, Introduction, Introduction
 @comment  node-name,  next,  previous,  up
 @section À quoi ressemble une règle
@@ -309,9 +466,10 @@ commande d'effacement associée à la cible @samp{clean} n'en n'a pas.
 
 Une @dfn{règle} explique donc comment et quand il faut recompiler
 certains fichiers, qui sont les cibles d'une règle particulière. Le
-programme @code{make} exécute des instructions sur des pré-requis pour créer
-ou mettre des cibles à jour. Une règle peut aussi expliquer comment et
-quand lancer une action.  @xref{Les règles,,Écrire les règles}.
+programme @code{make} exécute des instructions sur des pré-requis pour
+créer ou mettre des cibles à jour. Une règle peut aussi expliquer
+comment et quand lancer une action.  @xref{Les règles,,Écrire les
+règles}.
 
 Un makefile peut contenir autre chose à côté des règles, mais un makefile
 simple n'a besoin de contenir que des règles. Les règles peuvent être un peu
@@ -730,6 +888,18 @@ argument. Pour lancer cette règle, il faudra explicitement écrire
 @cindex makefile, comment écrire
 Les informations qui disent à @code{make} comment recompiler un système
 viennent de la lecture d'une base de données appelée @dfn{Makefile}.
+
+@menu
+* Le contenu d'un makefile         ::  Que contient un makefile.
+* Les noms des makefiles           ::  Quel nom donner à votre Makefile.
+* Inclure d'autres makefiles       ::  Inclure d'autres Makefiles.
+* La Variable MAKEFILES            ::  La Variable @code{MAKEFILES}.
+* Reconstruire les Makefiles       ::  Comment les Makefiles sont refabriqués.
+* Forcer les makefiles             ::  Remplacer les parties d'un autre Makefile.
+* Lire les Makefiles               ::  Comment @code{make} lit les Makefile.
+* Analyser les makefiles           ::  Comment sont analysés les Makefiles.
+* Les développements secondaires   ::  Les développements secondaires.
+@end menu
 
 @node Le contenu d'un makefile, Les noms des makefiles, Les Makefiles, Les Makefiles
 @section Que contient un makefile
@@ -1694,6 +1864,23 @@ que la première règle soit celle qui compile le programme dans son
 entier ou tous les programmes décrits par le @file{makefile} (cette
 règle par défaut s'appelle souvent @samp{all}). @xref{Objectifs,
 ,Arguments pour spécifier les objectifs}.
+
+@menu
+* Exemple de règle                 ::  Exemple de règle.
+* Règles syntaxiques               ::  Règles syntaxiques.
+* Les types de pré-requis          ::  Types de pré-requis.
+* Les caractères génériques        ::  Noms de fichiers avec caractères génériques.
+* Rechercher dans les répertoires  ::  Rechercher les pré-requis dans un répertoire.
+* Les cibles fictives              ::  Les cibles fictives.
+* Les cibles forcées               ::  Règles sans instructions ni pré-requis.
+* Les cibles vides                 ::  Des fichiers vides pour enregistrer un évènement.
+* Les cibles spéciales             ::  Les noms spéciaux de cibles déjà intégrés.
+* Les cibles multiples             ::  Les cibles multiples pour une règle.
+* Les règles multiples             ::  Les règles multiples pour une cible.
+* Les modèles statiques            ::  modèles statiques de règles.
+* Double double points             ::  Règles avec double double points.
+* Pré-requis automatiques          ::  Générer les pré-requis automatiquement.
+@end menu
 
 @ifnottex
 @node Exemple de règle, Règles syntaxiques, Les règles, Les règles
@@ -3547,6 +3734,19 @@ mais les instructions d'un makefiles sont toujours interprétées par
 @file{/bin/sh}, sauf si le makefile l'a spécifié autrement.
 @xref{Exécution, ,Exécution d'une instruction}.
 
+@menu
+* La syntaxe des instructions      ::  La syntaxe des instructions.
+* Donner un retour                 ::  Recipe Echoing.
+* Exécution                        ::  Exécuter une instruction.
+* Parallèle                        ::  Exécution parallèle.
+* Erreurs dans les instructions    ::  Erreurs dans les instructions.
+* Interruptions                    ::  Arrêter ou interrompre @code{make}.
+* Récursion                        ::  Usage récursif de @code{make}.
+* Les séquences enregistrées       ::  Définir des séquences à enregistrer.
+* Instructions vides               ::  Utiliser les instructions vides.
+@end menu
+
+
 @node La syntaxe des instructions, Donner un retour, Les instructions, Les instructions
 @section La syntaxe des instructions
 @cindex syntaxe d'une instruction
@@ -5208,6 +5408,23 @@ ponctuation ou juste quelques caractères. Ce sont les @dfn{variables
 automatiques} qui ont une utilisation particulière.
 @xref{Les variables automatiques}.
 
+@menu
+* Référencer une variable          ::  Référencer les variables.
+* Deux catégories de variables     ::  Les deux catégories de variables.
+* Fonctionalité avancée des variables::  Fonctionalités avancées des référencements de variables.
+* Les valeurs des variables        ::  Comment les variables obtiennent leur valeurs.
+* Définir une variable             ::  Définir les variables.
+* Rajouter du texte à une variable ::  Rajouter du texte à une variable.
+* Directive de forçage             ::  La directive @code{override}.
+* Variables sur plusieurs lignes   ::  Définir une variable sur plusieurs lignes.
+* Directive indéfinie              ::  Variables indéfinie.
+* Variables d'environnement        ::  Variables venant de l'environnement.
+* Variables spécifiques à la cible ::  Valeur des variables spécifiques à la cible.
+* Variables spécifiques au modèle  ::  Valeurs de variables spécifiques aux modèles.
+* Supprimer l'héritage             ::  Supprimer l'héritage.
+* Variables spéciales              ::  Autre variables spéciales.
+@end menu
+
 @node Référencer une variable, Deux catégories de variables, Utiliser les variables, Utiliser les variables
 @section Référencer les variables
 @cindex variables, comment référencer
@@ -6761,6 +6978,12 @@ variable avec une chaîne constante.  Ces directives contrôlent ce que
 peuvent pas} être utilisées pour contrôler les instructions au moment de
 l'exécution.
 
+@menu
+* Exemple d'expression conditionnelle ::  Example d'une partie conditionnelle.
+* Syntaxe conditionnelle              ::  Syntaxe des expresions conditionnelles.
+* Option indicatrice de test          ::  Partie conditionelles testant une option.
+@end menu
+
 @node Exemple d'expression conditionnelle, Syntaxe conditionnelle, Les parties conditionnelles, Les parties conditionnelles
 @section Example d'une partie conditionnelle
 
@@ -7087,8 +7310,25 @@ makefile pour définir les fichiers sur lesquels opérer ou les commandes
 @dfn{appel de fonction}, dans lequel vous donnez le nom de la fonction
 et du texte (les @dfn{arguments}) sur le lequel la fonction va
 opérer. Les résultats de l'exécution de la fonction sont substitués dans
-le makefile au point d'appel de la fonction, juste comme un variable
+le makefile au point d'appel de la fonction, juste comme une variable
 pourrait être substituée.
+
+@menu
+* Syntaxe des fonctions            ::  Syntaxe d'un appel de fonction.
+* Fonctions de texte               ::  Fonctions pour les subtitutions de chaînes et analyses.
+* Les fonctions de noms de fichier ::  Les fonctions de noms de fichiers.
+* Fonctions conditionnelles        ::  Fonctions conditionnelles.
+* La fonction Foreach              ::  La fonction @code{foreach}.
+* La fonction File                 ::  La fonction @code{file}.
+* La fonction Call                 ::  La fonction @code{call}.
+* Fonction Value                   ::  La fonction @code{value}.
+* Fonction Eval                    ::  La fonction @code{eval}.
+* La fonction origin               ::  La fonction @code{origin}.
+* La fonction Flavor               ::  La fonction @code{flavor}.
+* Les fonctions de contrôle de Make::  Fonctions de contrôle de Make.
+* La fonction shell                ::  La fonction @code{shell}.
+* La fonction Guile                ::  La fonction @code{guile}.
+@end menu
 
 @node Syntaxe des fonctions, Fonctions de texte, Les fonctions, Les fonctions
 @section Syntaxe d'un appel de fonction
@@ -8480,6 +8720,16 @@ détermine que certaines cibles ne sont pas déjà à jour.  @xref{À la place
 d'une exécution, À la place d'exécuter les instructions}.
 @end table
 
+@menu
+* Les arguments d'un Makefile      ::  Arguments pour spécifier le Makefile.
+* Objectifs                        ::  Arguments pour spécifier les objectifs.
+* À la place d'une exécution       ::  À la place d'exécuter une instruction.
+* Éviter de recompiler             ::  Éviter de recompiler certains fichiers.
+* Forcer                           ::  Remplacer la valeur des variables.
+* Tester                           ::  Tester la compilation d'un programme.
+* Résumé des options               ::  Résumé des options.
+@end menu
+
 @node Les arguments d'un Makefile, Objectifs, Exécuter make, Exécuter make
 @section Arguments pour spécifier le Makefile
 @cindex @code{--file}
@@ -9402,6 +9652,16 @@ conservées pour des raisons de compatibilité.
 @xref{Règle des suffixes, ,Ancienne règle des suffixes}.
 @end iftex
 
+@menu
+* Utiliser les règles implicites   ::  Utiliser les règles implicites.
+* Catalogue des règles             ::  Catalogue des règles prédéfinies.
+* Les variables implicites         ::  Les variables utilisées par les règles implicites.
+* Enchaînement de règles implicites::  Enchaînement de règles implicites.
+* Modèle de règles                 ::  Définir et redéfinir des modèles de règles.
+* Dernier ressort                  ::  Définir les règles de dernier ressort par défaut.
+* Règle des suffixes               ::  Ancienne règle des suffixes.
+* Recherche de règles implicites   ::  Algorithme de recherche de règle implicite.
+@end menu
 
 @node Utiliser les règles implicites, Catalogue des règles, Les règles implicites, Les règles implicites
 @section Utiliser les règles implicites
@@ -11032,6 +11292,13 @@ sous-fichiers nommés @dfn{membres}@tie{}; ils sont maintenus avec le
 programme @code{ar} et leur utilisation principale est une
 bibliothèques de sous-routine pour l'édition de liens..
 
+@menu
+* Les membres d'une archive        ::  Membres d'une archive comme cibles.
+* Archive Update                   ::  Règle implicite pour les membres d'une archive.
+* Archive Pitfalls                 ::  Les dangers d'utiliser des archives (NT).
+* Archive Règle des suffixes       ::  Règle des suffixes pour les fichiers d'archive (NT).
+@end menu
+
 @node Les membres d'une archive, Archive Update, Les fichiers archivés, Les fichiers archivés
 @section Membres d'une archive comme cibles
 @cindex membres d'archive cible
@@ -11271,6 +11538,12 @@ pouvez écrire vos propres extensions dans n'importe quel langage (qui
 peut être compilé en un tel objet) et le charger pour obtenir ces
 fonctionalités additionnelles (@pxref{load Directive, ,La directive
 @code{load}}).
+
+@menu
+* Intégration de Guile             ::  GNU Intégration de Guile (NT).
+* Charger des objets dynamiquement ::  Charger des objets dynamiquement (NT).
+@end menu
+
 
 @node Intégration de Guile, Charger des objets dynamiquement, Compléter make par des extensions, Compléter make par des extensions
 @section GNU Intégration de Guile (NT)

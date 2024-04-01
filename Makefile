@@ -9,7 +9,7 @@ INFO_PATH=/usr/local/share/info/
 # otherwise one need to use sudo command.
 
 info: $(SOURCE)
-	makeinfo --no-split --fill-column 80 $(TARGET).texi
+	makeinfo --fill-column 80 $(TARGET).texi
 	gzip -f $(TARGET).info*
 	cp *.info*.gz -t $(INFO_PATH)
 	rm -f *.info*.gz
