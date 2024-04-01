@@ -10,8 +10,8 @@
 @c @node Avertissement
 @c @section Avertissement
 
-Nous espérons que cette traduction en Français du manuel de @code{make}
-aidera le public Francophone à mieux comprendre les arcanes de ce
+J'espère que cette traduction en français du manuel de @code{make}
+aidera le public francophone à mieux comprendre les arcanes de ce
 programme très répandu dans le monde Unix/Linux pour l'installation de
 logiciels. Comme il en sera question plus loin, ce programme peut
 s'étendre à d'autres domaines et devenir un outil général très pratique
@@ -21,32 +21,32 @@ gagne à être connu.
 Le manuel est distribué sous une licence GPL (``GNU public licence'')
 dont une copie est donnée plus loin. La traduction suit les mêmes
 règles. Elle est distribuée librement à tous pour en faire l'usage qu'il
-en veut excepté de priver de liberté les autres utilisateurs. Les
+veut excepté de priver de liberté les autres utilisateurs. Les
 traducteurs ne prennent aucune responsabilité sur toute erreur ou
 dommage pouvant venir d'une erreur ou d'un manque de clarté dans la
-traduction. La version Anglaise reste disponible en cas de besoin et les
+traduction. La version anglaise reste disponible en cas de besoin et les
 sections suivantes aideront ceux qui veulent se plonger dans le détail
-de la traduction à mettre la version Française en parallèle avec la
-version Anglaise.
+de la traduction à mettre la version française en parallèle avec la
+version anglaise.
 
 
 
 @c @node Quelques mots
 @unnumberedsec Quelques mots sur la traduction en Français
 
-Les parties non encore traduites sont conservées en Anglais et leur
+Les parties non encore traduites sont conservées en anglais et leur
 titre a la mention @emph{NT} (pour Non Traduit). La traduction cherche a
-être la plus claire possible pour le public Francophone tout en gardant
+être la plus claire possible pour le public francophone tout en gardant
 l'ensemble des informations comprises dans le manuel. Par contre il a
 parfois fallu faire des choix de traduction. De temps en temps une
 parenthèse avec le signe @emph{ndt.} (Note De Traduction) donne une
-explication complémentaire, comme par exemple le terme Anglais quand il
+explication complémentaire, comme par exemple le terme anglais quand il
 peut y avoir un intérêt à le connaître.
 
 La section détaille les choix de traduction de certains termes clefs, ce
 qui est utile pour un autre traducteur, pour conserver l'unité cette
 traduction ou pour simplement rechercher une correspondance avec le
-texte en Anglais. Ces sections ne sont pas nécessaires pour une première
+texte en anglais. Ces sections ne sont pas nécessaires pour une première
 lecture.
 
 
@@ -55,7 +55,7 @@ lecture.
 
 Cette section liste les choix de traduction qui ont été faits pour
 certains termes particuliers. Le Français reste une langue proche de
-l'Anglais, néanmoins, il n'est jamais possible de faire une traduction
+l'anglais, néanmoins, il n'est jamais possible de faire une traduction
 mot à mot. Des choix ont dû être faits et la clareté de la version
 Française résultante a toujours été priviligiée, peut être au détriment
 d'images utilisées dans le texte d'origine ou d'un certain style. Ne
@@ -65,7 +65,7 @@ au contexte de cette traduction.
 
 
 @multitable @columnfractions .30 .70
-@headitem Anglais @tab Français
+@headitem anglais @tab français
 
 @item
 antislash @tab barre oblique inversée
@@ -186,9 +186,9 @@ wildcard @tab générique
 
 @unnumberedsec Commentaires sur les choix de traduction
 
-Le texte original en Anglais parle de règles qui se décomposent en
+Le texte original en anglais parle de règles qui se décomposent en
 recettes (``recipes'') et de variables qui ont différentes saveurs
-(``flavor''). Mais ce début culuniaire prometteur se gâte quand on arrive
+(``flavor''). Mais ce début culunaire prometteur se gâte quand on arrive
 aux recettes de boites de conserve (``canned recipes'').
 
 Le terme ``recette'' fait ici allusion au fait que l'on se préoccupe pas
