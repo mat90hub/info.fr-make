@@ -580,7 +580,7 @@ vous le lui dites spécifiquement. Notez que cette règle, non seulement
 n'est pas un pré-requis, mais qu'elle n'a pas non plus de pré-requis,
 donc le seul objectif de cette règle est d'exécuter l'instruction
 spécifiée. Les cibles qui ne font pas référence à des fichiers et qui ne
-sont que des actions sont appelées des @dfn{Les cibles fictives}
+sont que des actions sont appelées @dfn{Les cibles fictives}
 (ndt. ``phony targets'').  @xref{Les cibles fictives}, pour plus
 d'information sur ce genre de cibles.  @xref{Erreurs dans les
 instructions, , Erreurs dans les instructions}, pour voir comment
@@ -1110,7 +1110,7 @@ règles implicites, ,Utiliser les règles implicites}.
 @cindex @code{--file}
 @cindex @code{--makefile}
 Si vous voulez utiliser un nom non-standard pour vos makefiles, vous
-pouvez spécifier le nom du makefile avec l'otpion @samp{-f} ou
+pouvez spécifier le nom du makefile avec l'option @samp{-f} ou
 @samp{--file}.  Les arguments @w{@samp{-f @var{name}}} ou
 @w{@samp{--file=@var{name}}} disent à @code{make} de lire le fichier
 @var{name} comme makefile.  Si vous utilisez plus d'une option @samp{-f}
@@ -1393,7 +1393,7 @@ partir des informations contenues dans le makefile, @code{make} devra
 rechercher un autre makefile.  @xref{Modèle de règles}, pour plus
 d'informations sur les modèles de règles.
 
-Par exemple, si vous avez un makefile appelé @file{Makefile} qui di
+Par exemple, si vous avez un makefile appelé @file{Makefile} qui dit
 comment fabriquer la cible @samp{foo} (et d'autres cibles), vous pouvez
 écrire un makefile appelé @file{GNUmakefile} qui contient:
 
@@ -1433,7 +1433,7 @@ boucle sur les pré-requis@tie{}!
 
 GNU @code{make} réalise sa tâche en deux phases distinctes.  Pendant la
 première phase, il lit tous les makefiles, les makefiles inclus, etc. et
-internalise toutes les variables et leur valeurs, les règles implicites
+internalise toutes les variables et leurs valeurs, les règles implicites
 et explicites et bâtit les graphes de dépendance pour toutes les cibles
 et leur pré-requis. Durant la deuxième phase, @code{make} utilise ces
 données internalisées pour déterminer quelles cibles ont besoin d'être
@@ -1951,7 +1951,7 @@ occasionnellement plusieurs cibles
 
 @cindex instructions
 @cindex caractère de tabulation (dans les commandes)
-Les lignes @dfn{d'instruction} démarrent par une tabulation (ou bien le
+Les lignes @dfn{d’instructions} démarrent par une tabulation (ou bien le
 premier caractère de la valeur retournée par la variable
 @code{.RECIPEPREFIX}@tie{}; @pxref{Variables spéciales}). La première
 ligne d'instruction peut apparaitre sur la ligne suivant les pré-requis,
@@ -2720,8 +2720,8 @@ répertoire.  Comme il n'y a pas de pré-requis, @file{clean} serait
 considéré comment toujours à jour et son instruction ne se serait pas
 exécutée. Pour éviter ce problème, vous pouvez déclarer explicitement la
 cible comme fictive en le mettant comme un pré-requis de la cible spéciale
-@code{.PHONY} (@pxref{Les cibles spéciales, ,les noms de cibles intégrées})
-de la façon suivante:
+@code{.PHONY} de la façon suivante:
+
 
 @example
 @group
@@ -2730,6 +2730,8 @@ clean:
         rm *.o temp
 @end group
 @end example
+
+(@pxref{Les cibles spéciales, ,les noms de cibles intégrées})
 
 @noindent
 Une fois que c'est fait, @samp{make clean} exécutera l'instruction sans
@@ -2740,7 +2742,7 @@ d'invocations de @code{make} (@pxref{Récursion, ,Utilisation récursive
 de make}@tie{}). Dans cette situation, le makefile contient souvent une
 variable, qui liste un nombre de sous-répertoires à compiler. Une
 approche simpliste pour gérer ceci est de définir une règle avec une
-instruction, qui boucle dans les sosu-répertoires comme ceci@tie{}:
+instruction, qui boucle dans les sous-répertoires comme ceci@tie{}:
 
 @example
 @group
@@ -2761,9 +2763,9 @@ commande shell pour noter les erreurs et sortir, mais alors ceci est
 fait même si @code{make} est invoqué avec l'option @code{-k}, ce qui
 n'est pas très heureux.  Ensuite, et peut être de manière plus
 importante, vous ne pouvez pas bénéficier de l'avantage de la capacité
-de @code{make} de compiler des cibles en parallèle
-(@pxref{Parallèle,,Exécution Parallèle}), car il n'y a qu'une seule
-règle.
+de @code{make} de compiler des cibles en parallèle car il n'y a qu'une
+seule règle (@pxref{Parallèle,,Exécution Parallèle}).
+
 
 En déclarant les sous-répertoires comme des cibles fictives
 (@code{.PHONY}), vous enlevez ces désagréments (vous pouvez le faire,
@@ -2833,7 +2835,7 @@ fictif, sauf s'ils ont été explicitement déclarés comme tels.
 
 Quand une cible fictive est le pré-requis d'une autre, elle sert de
 sous-routine à l'autre. Par exemple, ici @samp{make cleanall} va effacer
-tous les fichiers objet, les fichiers de différence ans le fichier
+tous les fichiers objet, les fichiers de différence dans le fichier
 @file{program}:
 
 @example
@@ -5600,7 +5602,7 @@ x := later
 @end example
 
 Quand une variable développée de manière unique est référencée, sa
-valeur est subtituée tel que..
+valeur est subtituée tel que.
 
 Voici un modèle un peu plus compliqué, illustrant l'utilisation de 
 @samp{:=} en conjonction avec la fonction @code{shell}.  (@xref{La
